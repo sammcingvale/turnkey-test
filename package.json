@@ -1,0 +1,29 @@
+{
+  "name": "turnkey-test",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "create": "tsx src/index.ts create",
+    "status": "tsx src/index.ts status",
+    "fund-gas": "tsx src/index.ts fund-gas",
+    "refund": "tsx src/index.ts refund",
+    "sweep-gas": "tsx src/index.ts sweep-gas",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/sdk-server": "^6.0.0",
+    "@turnkey/viem": "^0.14.29",
+    "dotenv": "^16.4.5",
+    "viem": "^2.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
