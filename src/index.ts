@@ -3,6 +3,7 @@ import { status } from "./commands/status.js";
 import { fundGas } from "./commands/fund-gas.js";
 import { refund } from "./commands/refund.js";
 import { sweepGas } from "./commands/sweep-gas.js";
+import { cleanup } from "./commands/cleanup.js";
 import { parseFlags } from "./util.js";
 
 const USAGE = `
@@ -18,6 +19,7 @@ commands:
   fund-gas            top up each test wallet with ETH from the gas tank
   refund              send each test wallet's USDC balance to REFUND_ADDRESS
   sweep-gas           pull leftover ETH from test wallets -> gas tank -> REFUND_ADDRESS
+  cleanup             delete all test + gas-tank wallets from turnkey (refuses if USDC remains)
 
 flags (where applicable):
   --dry-run           print intended actions without signing or sending
@@ -50,6 +52,8 @@ async function main() {
       return refund(flags);
     case "sweep-gas":
       return sweepGas(flags);
+    case "cleanup":
+      return cleanup(flags);
     default:
       console.error(`unknown command: ${cmd}`);
       console.log(USAGE);

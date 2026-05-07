@@ -10,6 +10,7 @@
     "fund-gas": "tsx src/index.ts fund-gas",
     "refund": "tsx src/index.ts refund",
     "sweep-gas": "tsx src/index.ts sweep-gas",
+    "cleanup": "tsx src/index.ts cleanup",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
