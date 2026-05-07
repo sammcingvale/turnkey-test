@@ -4,27 +4,39 @@ import { readState, statePath } from "../state.js";
 import { apiClient } from "../turnkey.js";
 import { confirm, fmtEth, fmtUsdc, type CliFlags } from "../util.js";
 
+// USDC has 6 decimals; 10_000 units = $0.01. Anything below this is dust we
+// won't bother refunding before delete (gas to recover would exceed value).
+const USDC_DUST_THRESHOLD = 10_000n;
+
 export async function cleanup(flags: CliFlags): Promise<void> {
   const state = readState();
   const allWallets = [...state.testWallets, state.gasTank];
 
   console.log(`will delete ${allWallets.length} turnkey wallet(s):\n`);
 
-  // safety check: confirm balances are drained
+  // safety check: confirm balances are drained (above dust)
   const balances = await readBalances(allWallets.map((w) => w.address));
-  let walletsWithUsdc = 0;
+  let walletsBlocking = 0;
+  let totalUsdcDust = 0n;
   for (const w of allWallets) {
     const b = balances.get(w.address)!;
-    if (b.usdc > 0n) walletsWithUsdc++;
+    if (b.usdc > USDC_DUST_THRESHOLD) walletsBlocking++;
+    else if (b.usdc > 0n) totalUsdcDust += b.usdc;
     console.log(
       `  ${w.name.padEnd(16)} ${w.address}  ${fmtEth(b.eth).padEnd(22)} ${fmtUsdc(b.usdc)}`,
     );
   }
 
-  if (walletsWithUsdc > 0) {
+  if (walletsBlocking > 0) {
     throw new Error(
-      `${walletsWithUsdc} wallet(s) still hold USDC. run \`npm run refund\` first, ` +
+      `${walletsBlocking} wallet(s) still hold > $0.01 USDC. run \`npm run refund\` first, ` +
         `or remove those entries from wallets.json if you really mean to abandon them.`,
+    );
+  }
+
+  if (totalUsdcDust > 0n) {
+    console.log(
+      `\nnote: ${fmtUsdc(totalUsdcDust)} of dust will be permanently inaccessible after deletion (below $0.01 refund threshold).`,
     );
   }
 
